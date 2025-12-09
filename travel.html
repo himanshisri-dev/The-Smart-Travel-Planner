@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>India Travel Pathfinder</title>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --accent: #3f37c9;
+      --highlight: #4cc9f0;
+      --node-fill: #f72585;
+      --node-fill-alt: #b5179e;
+      --text-dark: #2b2d42;
+      --text-muted: #8d99ae;
+      --shadow-light: rgba(64, 81, 181, 0.1);
+      --bg-gradient: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      --canvas-bg: linear-gradient(135deg, #ffffff, #f8f9fa);
+      --comparison-bg: #f8f9fa;
+      --comparison-border: #dee2e6;
+      --comparison-header-bg: #e9ecef;
+      --comparison-header-color: #2b2d42;
+      --comparison-row-bg-alt: #f1f3f5;
+      --comparison-row-hover-bg: #e9ecef;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-dark);
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      user-select: none;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-family: 'Montserrat', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      margin: 0 0 20px 0;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: none;
+    }
+
+    .controls {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 24px rgba(67, 97, 238, 0.15);
+      padding: 25px 35px;
+      max-width: 850px;
+      width: 95%;
+      margin-bottom: 30px;
+      user-select: auto;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(67, 97, 238, 0.1);
+    }
+   
+    .controls:hover {
+      box-shadow: 0 6px 28px rgba(67, 97, 238, 0.2);
+    }
+
+    .algorithm-selector {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .algorithm-selector button {
+      background: white;
+      border: 2px solid var(--primary-light);
+      border-radius: 25px;
+      padding: 12px 28px;
+      color: var(--primary);
+      font-size: 1.05rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(67, 97, 238, 0.1);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .algorithm-selector button:hover:not(.active) {
+      background: var(--highlight);
+      color: white;
+      box-shadow: 0 4px 16px rgba(76, 201, 240, 0.3);
+      border-color: var(--highlight);
+      transform: translateY(-2px);
+    }
+    .algorithm-selector button.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 20px rgba(67, 97, 238, 0.3);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .control-group {
+      display: flex;
+      justify-content: center;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+    .control-group > div {
+      text-align: left;
+      min-width: 190px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: var(--primary);
+      letter-spacing: 0.4px;
+      user-select: text;
+    }
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 1rem;
+      border-radius: 14px;
+      border: 2px solid var(--primary-light);
+      box-shadow: none;
+      background: white;
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: text;
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg fill="%234361ee" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px 16px;
+    }
+    select:hover {
+      border-color: var(--highlight);
+      background: #f0faff;
+      box-shadow: 0 2px 8px rgba(76, 201, 240, 0.1);
+    }
+    select:focus {
+      outline: none;
+      border-color: var(--highlight);
+      box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.3);
+      background: #e6f4ff;
+    }
+
+    #findPathBtn {
+      margin-top: 24px;
+      width: 100%;
+      padding: 15px 0;
+      font-size: 1.25rem;
+      border-radius: 40px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 0 4px 16px rgba(67, 97, 238, 0.3);
+      border: none;
+      color: white;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      user-select: none;
+    }
+    #findPathBtn:hover:enabled {
+      background: linear-gradient(135deg, var(--accent), var(--primary));
+      box-shadow: 0 6px 20px rgba(63, 55, 201, 0.4);
+      transform: translateY(-3px);
+    }
+    #findPathBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    #output {
+      max-width: 800px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 6px 24px rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      font-size: 1.25rem;
+      font-family: 'Poppins', Georgia;
+      padding: 18px 28px;
+      margin: 18px auto 28px;
+      min-height: 90px;
+      font-weight: 500;
+      user-select: text;
+      letter-spacing: 0.4px;
+      text-align: left;
+      border: 1px solid rgba(67, 97, 238, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    #output:hover {
+      box-shadow: 0 8px 28px rgba(67, 97, 238, 0.15);
+    }
+
+    .comparison-container {
+      background: var(--comparison-bg);
+      max-width: 850px;
+      margin: 0 auto 38px;
+      padding: 20px 28px;
+      border-radius: 15px;
+      border: 1px solid var(--comparison-border);
+      color: var(--primary);
+      user-select: none;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      box-shadow: 0 4px 24px rgba(67, 97, 238, 0.1);
+      transition: all 0.3s ease;
+      
+    }
+    
+    .comparison-container:hover {
+      box-shadow: 0 6px 28px rgba(67, 97, 238, 0.15);
+    }
+    
+    .comparison-container h3 {
+      margin: 0 0 18px 0;
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--comparison-header-color);
+      text-shadow: none;
+      border-bottom: 2px solid var(--comparison-border);
+      padding-bottom: 6px;
+      font-family: 'Montserrat';
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+      color: var(--text-dark);
+      font-size: 1rem;
+      letter-spacing: 0.3px;
+      user-select: text;
+    }
+    .comparison-table th,
+    .comparison-table td {
+      text-align: left;
+      padding: 12px 18px;
+      background: white;
+      border-bottom: none;
+      border-radius: 12px;
+      border: 1px solid rgba(67, 97, 238, 0.1);
+    }
+    .comparison-table th {
+      background: var(--comparison-header-bg);
+      color: var(--comparison-header-color);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.9px;
+      font-family: 'Montserrat';
+    }
+    .comparison-table tr {
+      transition: all 0.2s;
+    }
+    .comparison-table tr:nth-child(even) td {
+      background: var(--comparison-row-bg-alt);
+    }
+    .comparison-table tr:hover td {
+      background: var(--comparison-row-hover-bg);
+      color: var(--primary);
+      cursor: default;
+      font-weight: 700;
+      transform: translateX(4px);
+    }
+
+    #graphCanvas {
+      background: var(--canvas-bg);
+      border-radius: 30px;
+      box-shadow: 0 8px 32px rgba(67, 97, 238, 0.15);
+      width: 100%;
+      max-width: 1200px;
+      height: 800px;
+      cursor: crosshair;
+      user-select: none;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(67, 97, 238, 0.1);
+    }
+    
+    #graphCanvas:hover {
+      box-shadow: 0 12px 40px rgba(67, 97, 238, 0.2);
+    }
+
+    .loader {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 150;
+    }
+    .pulse {
+      width: 50px;
+      height: 50px;
+      background: var(--highlight);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+      position: relative;
+      box-shadow: 0 0 20px var(--highlight);
+    }
+    .pulse:before {
+      content: '';
+      position: absolute;
+      border: 2.5px solid var(--highlight);
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      top: 0;
+      left: 0;
+      animation: pulse-dot 1.5s infinite;
+      box-sizing: border-box;
+      box-shadow: 0 0 20px var(--highlight);
+    }
+    @keyframes pulse {
+      0% {
+        transform: scale(0.85);
+        opacity: 0.75;
+      }
+      70% {
+        transform: scale(1.15);
+        opacity: 0.2;
+      }
+      100% {
+        transform: scale(0.85);
+        opacity: 0.75;
+      }
+    }
+    @keyframes pulse-dot {
+      0% {
+        transform: scale(0.85);
+        opacity: 0.75;
+      }
+      70% {
+        transform: scale(1.7);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(0.85);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 2rem;
+      }
+      .control-group {
+        flex-direction: column;
+        gap: 14px;
+      }
+      .controls {
+        padding: 20px;
+      }
+      #findPathBtn {
+        font-size: 1.1rem;
+        padding: 14px 0;
+        min-width: 200px;
+      }
+      #graphCanvas {
+        height: 480px;
+      }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <h1>India Travel Pathfinder</h1>
+
+  <div class="controls">
+    <div class="algorithm-selector">
+      <button id="bfsBtn" class="active" onclick="setAlgorithm('bfs')">BFS</button>
+      <button id="dfsBtn" onclick="setAlgorithm('dfs')">DFS</button>
+      <button id="dijkstraBtn" onclick="setAlgorithm('dijkstra')">Dijkstra's</button>
+      <button id="bellmanBtn" onclick="setAlgorithm('bellman')">Bellman-Ford</button>
+      <button id="compareBtn" onclick="showComparison()">Compare All</button>
+    </div>
+
+    <div class="control-group">
+      <div>
+        <label for="start">Start City</label>
+        <select id="start" aria-label="Select start city">
+          <option value="Delhi">Delhi</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Kolkata">Kolkata</option>
+          <option value="Jaipur">Jaipur</option>
+          <option value="Pune">Pune</option>
+          <option value="Ahmedabad">Ahmedabad</option>
+          <option value="Kochi">Kochi</option>
+          <option value="Dehradun">Dehradun</option>
+          <option value="Lucknow">Lucknow</option>
+          <option value="Bhopal">Bhopal</option>
+          <option value="Nagpur">Nagpur</option>
+          <option value="Visakhapatnam">Visakhapatnam</option>
+          <option value="Chandigarh">Chandigarh</option>
+        </select>
+      </div>
+      <div>
+        <label for="end">End City</label>
+        <select id="end" aria-label="Select end city">
+          <option value="Chennai">Chennai</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Kolkata">Kolkata</option>
+          <option value="Jaipur">Jaipur</option>
+          <option value="Pune">Pune</option>
+          <option value="Ahmedabad">Ahmedabad</option>
+          <option value="Kochi">Kochi</option>
+          <option value="Dehradun">Dehradun</option>
+          <option value="Lucknow">Lucknow</option>
+          <option value="Bhopal">Bhopal</option>
+          <option value="Nagpur">Nagpur</option>
+          <option value="Visakhapatnam">Visakhapatnam</option>
+          <option value="Chandigarh">Chandigarh</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="findPathBtn" onclick="findPath()" aria-label="Find path between selected cities">
+      Find Path
+    </button>
+  </div>
+
+  <div id="output" role="status" aria-live="polite">
+    Select start and end cities to find the path
+  </div>
+
+  <div id="comparisonContainer" class="comparison-container" role="region" aria-label="Algorithm comparison results" style="display:none;">
+    <h3>Algorithm Comparison</h3>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Algorithm</th>
+          <th>Path</th>
+          <th>Distance (km)</th>
+          <th>Steps</th>
+        </tr>
+      </thead>
+      <tbody id="comparisonResults"></tbody>
+    </table>
+
+    <canvas id="lineChart" width="900" height="400" style="margin-top: 30px;"></canvas>
+    
+  </div>
+
+  <canvas id="graphCanvas" width="1200" height="800" aria-label="Graph visualization of cities and paths"></canvas>
+
+  <div class="loader" id="loader" aria-hidden="true" role="alert" aria-live="assertive">
+    <div class="pulse"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("graphCanvas");
+    const ctx = canvas.getContext("2d");
+    const bfsBtn = document.getElementById("bfsBtn");
+    const dfsBtn = document.getElementById("dfsBtn");
+    const dijkstraBtn = document.getElementById("dijkstraBtn");
+    const bellmanBtn = document.getElementById("bellmanBtn");
+    const comparisonContainer = document.getElementById("comparisonContainer");
+    const comparisonResults = document.getElementById("comparisonResults");
+    const loader = document.getElementById("loader");
+    const findPathBtn = document.getElementById("findPathBtn");
+    const output = document.getElementById("output");
+
+    let currentAlgorithm = "bfs";
+    let animationRequestId = null;
+    let isAnimating = false;
+    let finalPath = [];
+    let finalEdgeColor = "#4361ee";
+    let finalNodeColor = "#f72585";
+    let allNodesColor = "#f72585";
+    let nodeTextColor = "#FFFFFF";
+    let nodeBorderColor = "#b5179e";
+    let nodeLabelColor = "#7209b7";
+
+    // Animation state for gradual path building
+    let animationIndex = 0;
+    let animationProgress = 0;
+    const animationSpeed = 0.005;
+
+    const positions = {
+      "Delhi": [550, 150],
+      "Mumbai": [800, 150],
+      "Bangalore": [1000, 200],
+      "Hyderabad": [150, 650],
+      "Chennai": [1000, 500],
+      "Kolkata": [450, 350],
+      "Jaipur": [250, 200],
+      "Pune": [550, 750],
+      "Ahmedabad": [350, 50],
+      "Kochi": [850, 700],
+      "Dehradun": [100, 150],
+      "Lucknow": [200, 450],
+      "Bhopal": [50, 600],
+      "Nagpur": [500, 550],
+      "Visakhapatnam": [700, 550],
+      "Chandigarh": [100, 350]
+    };
+
+    const graph = {
+      Delhi: { Mumbai: 1400, Hyderabad: 1300, Jaipur: 280, Ahmedabad: 800, Kolkata: 1300, Dehradun: 250, Lucknow: 500, Chandigarh: 250 },
+      Mumbai: { Delhi: 1400, Bangalore: 1000, Hyderabad: 700, Pune: 150, Ahmedabad: 500, Bhopal: 800, Nagpur: 850 },
+      Bangalore: { Mumbai: 1000, Chennai: 350, Hyderabad: 570, Kochi: 550, Visakhapatnam: 1000 },
+      Hyderabad: { Delhi: 1300, Mumbai: 700, Bangalore: 570, Pune: 550, Nagpur: 500, Visakhapatnam: 650 },
+      Chennai: { Bangalore: 350, Hyderabad: 630, Kochi: 700, Visakhapatnam: 800 },
+      Kolkata: { Delhi: 1300, Hyderabad: 1200, Lucknow: 1000 },
+      Jaipur: { Delhi: 280, Ahmedabad: 650, Lucknow: 600 },
+      Pune: { Mumbai: 150, Hyderabad: 550, Nagpur: 700 },
+      Ahmedabad: { Delhi: 800, Mumbai: 500, Jaipur: 650 },
+      Kochi: { Bangalore: 550, Chennai: 700 },
+      Dehradun: { Delhi: 250, Chandigarh: 200 },
+      Lucknow: { Delhi: 500, Kolkata: 1000, Jaipur: 600, Bhopal: 650 },
+      Bhopal: { Mumbai: 800, Lucknow: 650, Nagpur: 350 },
+      Nagpur: { Mumbai: 850, Hyderabad: 500, Pune: 700, Bhopal: 350, Visakhapatnam: 700 },
+      Visakhapatnam: { Bangalore: 1000, Hyderabad: 650, Chennai: 800, Nagpur: 700 },
+      Chandigarh: { Delhi: 250, Dehradun: 200 },
+    };
+
+    // Initialize the graph visualization
+    function initGraph() {
+      drawGraph();
+    }
+
+    // Draw the graph with all nodes and edges
+    function drawGraph() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw edges
+      ctx.lineCap = 'round';
+      for (const n in graph) {
+        for (const nb in graph[n]) {
+          if (!positions[n] || !positions[nb]) continue;
+          ctx.beginPath();
+          ctx.moveTo(...positions[n]);
+          ctx.lineTo(...positions[nb]);
+          ctx.strokeStyle = 'rgba(67, 97, 238, 0.15)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // Draw weights midpoint
+          const midX = (positions[n][0] + positions[nb][0]) / 2;
+          const midY = (positions[n][1] + positions[nb][1]) / 2;
+          ctx.fillStyle = '#4361ee';
+          ctx.font = 'bold 12px Poppins';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(graph[n][nb] + ' km', midX, midY - 8);
+        }
+      }
+
+      // Draw nodes with new attractive colors
+      for (const node in positions) {
+        const [x, y] = positions[node];
+        ctx.beginPath();
+        ctx.arc(x, y, 25, 0, Math.PI * 2);
+        ctx.fillStyle = allNodesColor;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = nodeBorderColor;
+        ctx.stroke();
+
+        // Node labels (outside)
+        ctx.fillStyle = nodeLabelColor;
+        ctx.font = 'bold 14px Poppins';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(node, x, y + 42);
+
+        // Short city name inside node - white text
+        const shortName = node.length > 8 ? node.slice(0, 5) + '...' : node;
+        ctx.fillStyle = nodeTextColor;
+        ctx.font = 'bold 12px Poppins';
+        ctx.fillText(shortName, x, y);
+      }
+    }
+
+    // Sleep for animation pacing
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Helper to build path for Dijkstra and Bellman-Ford
+    function buildPath(previous, current, start) {
+      const p = [];
+      while (current !== start && current !== null) {
+        p.unshift(current);
+        current = previous[current];
+      }
+      if (current === start) p.unshift(start);
+      return p;
+    }
+
+    // Algorithms implementations with updated colors
+    async function bfs(start, end) {
+      let queue = [{ node: start, path: [start] }];
+      let visited = new Set([start]);
+      let steps = 0;
+      while (queue.length) {
+        let current = queue.shift();
+        steps++;
+        if (current.node === end) return { path: current.path, color: '#f72585', name: 'BFS Path', edgeColor: '#f72585', steps, distance: calculateTotalDistance(current.path) };
+        const neighbors = Object.keys(graph[current.node]).sort();
+        for (const nb of neighbors) {
+          if (!visited.has(nb)) {
+            visited.add(nb);
+            queue.push({ node: nb, path: [...current.path, nb] });
+          }
+        }
+        if (steps % 3 === 0) await sleep(20);
+      }
+      return { path: [], steps, color: '', name: '', distance: 0 };
+    }
+
+    async function dfs(start, end) {
+      let stack = [{ node: start, path: [start] }];
+      let visited = new Set([start]);
+      let steps = 0;
+      while (stack.length) {
+        let current = stack.pop();
+        steps++;
+        if (current.node === end) return { path: current.path, color: '#4cc9f0', name: 'DFS Path', edgeColor: '#4cc9f0', steps, distance: calculateTotalDistance(current.path) };
+        const neighbors = Object.keys(graph[current.node]).sort();
+        for (const nb of neighbors) {
+          if (!visited.has(nb)) {
+            visited.add(nb);
+            stack.push({ node: nb, path: [...current.path, nb] });
+          }
+        }
+        if (steps % 3 === 0) await sleep(20);
+      }
+      return { path: [], steps, color: '', name: '', distance: 0 };
+    }
+
+    async function dijkstra(start, end) {
+      const distances = {}, previous = {}, nodes = new Set(Object.keys(graph));
+      let steps = 0;
+      for (const n of nodes) distances[n] = (n === start ? 0 : Infinity);
+      for (const n of nodes) previous[n] = null;
+      while (nodes.size) {
+        let current = null, minDist = Infinity;
+        for (const n of nodes) if (distances[n] < minDist) { current = n; minDist = distances[n]; }
+        steps++;
+        if (!current || distances[current] === Infinity) break;
+        if (current === end) {
+          const p = buildPath(previous, current, start);
+          return { path: p, color: '#4361ee', name: "Dijkstra's Path", edgeColor: '#4361ee', steps, distance: distances[end] };
+        }
+        nodes.delete(current);
+        const neighbors = Object.keys(graph[current]);
+        for (const nb of neighbors) {
+          steps++;
+          const d = distances[current] + graph[current][nb];
+          if (d < distances[nb]) {
+            distances[nb] = d;
+            previous[nb] = current;
+          }
+        }
+        if (steps % 7 === 0) await sleep(20);
+      }
+      return { path: [], steps, color: '', name: '', distance: 0 };
+    }
+
+    async function bellmanFord(start, end) {
+      const distances = {}, previous = {};
+      const nodes = Object.keys(graph);
+      for (const n of nodes) { distances[n] = (n === start ? 0 : Infinity); previous[n] = null; }
+      let steps = 0;
+      for (let i = 0; i < nodes.length - 1; i++) {
+        let updated = false;
+        for (const u of nodes) {
+          for (const v in graph[u]) {
+            steps++;
+            const w = graph[u][v];
+            if (distances[u] + w < distances[v]) {
+              distances[v] = distances[u] + w;
+              previous[v] = u;
+              updated = true;
+            }
+          }
+        }
+        if (!updated) break;
+        await sleep(30);
+      }
+      if (distances[end] === Infinity) return { path: [], color: '', name: '', steps, distance: 0 };
+      let p = buildPath(previous, end, start);
+      return { path: p, color: '#7209b7', name: 'Bellman-Ford Path', edgeColor: '#7209b7', steps, distance: distances[end] };
+    }
+
+    function calculateTotalDistance(path) {
+      let total = 0;
+      for (let i = 1; i < path.length; i++) total += graph[path[i - 1]][path[i]];
+      return total;
+    }
+
+    // Animation function to draw the path
+    function animatePath() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawGraph();
+
+      // Draw the path edges
+      for (let i = 0; i < animationIndex; i++) {
+        if (i < finalPath.length - 1) {
+          const from = finalPath[i];
+          const to = finalPath[i + 1];
+          if (positions[from] && positions[to]) {
+            ctx.beginPath();
+            ctx.moveTo(...positions[from]);
+            ctx.lineTo(...positions[to]);
+            ctx.strokeStyle = finalEdgeColor;
+            ctx.lineWidth = 4;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw the traveling dot
+      if (animationIndex < finalPath.length - 1) {
+        const from = finalPath[animationIndex];
+        const to = finalPath[animationIndex + 1];
+        if (positions[from] && positions[to]) {
+          const [x1, y1] = positions[from];
+          const [x2, y2] = positions[to];
+          const x = x1 + (x2 - x1) * animationProgress;
+          const y = y1 + (y2 - y1) * animationProgress;
+
+          ctx.beginPath();
+          ctx.arc(x, y, 10, 0, Math.PI * 2);
+          ctx.fillStyle = finalNodeColor;
+          ctx.shadowColor = finalNodeColor;
+          ctx.shadowBlur = 15;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          animationProgress += animationSpeed;
+          if (animationProgress >= 1) {
+            animationProgress = 0;
+            animationIndex++;
+          }
+        }
+      }
+
+      // Draw the path nodes
+      for (let i = 0; i <= animationIndex && i < finalPath.length; i++) {
+        const node = finalPath[i];
+        if (positions[node]) {
+          const [x, y] = positions[node];
+          ctx.beginPath();
+          ctx.arc(x, y, 25, 0, Math.PI * 2);
+          ctx.fillStyle = finalNodeColor;
+          ctx.shadowColor = finalNodeColor;
+          ctx.shadowBlur = 10;
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = nodeBorderColor;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Node labels (outside)
+          ctx.fillStyle = nodeLabelColor;
+          ctx.font = 'bold 14px Poppins';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(node, x, y + 42);
+
+          // Short city name inside node
+          const shortName = node.length > 8 ? node.slice(0, 5) + '...' : node;
+          ctx.fillStyle = nodeTextColor;
+          ctx.font = 'bold 12px Poppins';
+          ctx.fillText(shortName, x, y);
+        }
+      }
+
+      if (isAnimating) {
+        animationRequestId = requestAnimationFrame(animatePath);
+      }
+    }
+
+    function setAlgorithm(algorithm) {
+      currentAlgorithm = algorithm;
+      [bfsBtn, dfsBtn, dijkstraBtn, bellmanBtn].forEach(btn => btn.classList.remove("active"));
+      if (algorithm === "bfs") bfsBtn.classList.add("active");
+      else if (algorithm === "dfs") dfsBtn.classList.add("active");
+      else if (algorithm === "dijkstra") dijkstraBtn.classList.add("active");
+      else if (algorithm === "bellman") bellmanBtn.classList.add("active");
+
+      comparisonContainer.style.display = "none";
+      output.textContent = "Select start and end cities to find the path";
+      stopAnimation();
+    }
+
+    async function findPath() {
+      const start = document.getElementById("start").value;
+      const end = document.getElementById("end").value;
+      comparisonContainer.style.display = "none";
+
+      if (start === end) {
+        output.textContent = "Start and end cities are the same!";
+        stopAnimation();
+        return;
+      }
+      loader.style.display = "block";
+      findPathBtn.disabled = true;
+
+      // Change all nodes color when finding path
+      allNodesColor = "#4895ef"; // Light blue color for all nodes during search
+      drawGraph();
+
+      // Scroll to graph
+      canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      let result;
+      try {
+        if (currentAlgorithm === "bfs") result = await bfs(start, end);
+        else if (currentAlgorithm === "dfs") result = await dfs(start, end);
+        else if (currentAlgorithm === "dijkstra") result = await dijkstra(start, end);
+        else result = await bellmanFord(start, end);
+      } catch (e) {
+        console.error(e);
+      }
+
+      loader.style.display = "none";
+      findPathBtn.disabled = false;
+
+      if (!result || result.path.length === 0) {
+        output.textContent = "No path found between these cities!";
+        stopAnimation();
+        return;
+      }
+
+      output.innerHTML = `
+        <div style="color:${result.color}">
+          ${result.name}: ${result.path.join(" → ")}<br>
+          Distance: ${result.distance} km<br />
+          Steps: ${result.steps}
+        </div>
+      `;
+
+      finalPath = result.path;
+      finalEdgeColor = result.edgeColor || result.color || "#4361ee";
+      finalNodeColor = result.color || "#f72585";
+
+      // Start animation
+      animationIndex = 0;
+      animationProgress = 0;
+      isAnimating = true;
+      animatePath();
+    }
+
+    async function showComparison() {
+      const start = document.getElementById("start").value;
+      const end = document.getElementById("end").value;
+      if (start === end) {
+        output.textContent = "Start and end cities are the same!";
+        return;
+      }
+      
+      comparisonResults.innerHTML = "";
+      comparisonContainer.style.display = "block";
+      output.textContent = "Running comparison...";
+      
+      // Change all nodes color when comparing
+      allNodesColor = "#7209b7"; // Purple color for all nodes during comparison
+      drawGraph();
+
+      // Scroll to comparison table
+      comparisonContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      [findPathBtn, bfsBtn, dfsBtn, dijkstraBtn, bellmanBtn, compareBtn].forEach(el => el.disabled = true);
+      comparisonContainer.style.opacity = "0.6";
+      loader.style.display = "block";
+
+      finalPath = [];
+      stopAnimation();
+
+   
+
+      try {
+        const [bfsResult, dfsResult, dijkstraResult, bellmanResult] = await Promise.all([
+          bfs(start, end),
+          dfs(start, end),
+          dijkstra(start, end),
+          bellmanFord(start, end)
+        ]);
+
+        comparisonResults.innerHTML = "";
+        
+        const results = [
+          { name: "Breadth-First Search", ...bfsResult },
+          { name: "Depth-First Search", ...dfsResult },
+          { name: "Dijkstra's Algorithm", ...dijkstraResult },
+          { name: "Bellman-Ford Algorithm", ...bellmanResult }
+        ];
+
+        results.forEach(result => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${result.name}</td>
+            <td>${result.path.length > 0 ? result.path.join(" → ") : "No Path"}</td>
+            <td>${result.distance !== undefined ? result.distance + " km" : "N/A"}</td>
+            <td>${result.steps}</td>
+          `;
+          comparisonResults.appendChild(row);
+        });
+
+        output.textContent = "Comparison complete!";
+
+        // Prepare data for the chart
+const chartLabels = results.map(r => r.name);
+const distances = results.map(r => r.distance || 0);
+const steps = results.map(r => r.steps || 0);
+
+// Destroy previous chart if exists
+if (window.comparisonChart) {
+  window.comparisonChart.destroy();
+}
+
+// Create new chart
+const chartCtx = document.getElementById('lineChart').getContext('2d');
+window.comparisonChart = new Chart(chartCtx, {
+  type: 'line',
+  data: {
+    labels: chartLabels,
+    datasets: [
+      {
+        label: 'Distance (km)',
+        data: distances,
+        borderColor: '#4361ee',
+        backgroundColor: '#4361ee33',
+        fill: false,
+        tension: 0.3
+      },
+      {
+        label: 'Steps',
+        data: steps,
+        borderColor: '#f72585',
+        backgroundColor: '#f7258533',
+        fill: false,
+        tension: 0.3
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Algorithm Comparison Chart'
+      },
+      legend: {
+        position: 'top'
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    }
+  }
+});
+
+      } catch (error) {
+        console.error("Comparison error:", error);
+        output.textContent = "Error running comparison.";
+      } finally {
+        [findPathBtn, bfsBtn, dfsBtn, dijkstraBtn, bellmanBtn, compareBtn].forEach(el => el.disabled = false);
+        comparisonContainer.style.opacity = "1";
+        loader.style.display = "none";
+      }
+    }
+
+    function stopAnimation() {
+      isAnimating = false;
+      if (animationRequestId) {
+        cancelAnimationFrame(animationRequestId);
+        animationRequestId = null;
+      }
+      allNodesColor = "#FF6B6B"; // Reset to coral color
+      drawGraph();
+    }
+
+    // Initialize the graph when the page loads
+    window.onload = function() {
+      initGraph();
+    };
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Modern App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="stylesheet.css">
+</head>
+<body>
+    <div class="container">
+        <div class="illustration">
+            <img src="https://cdn-icons-png.flaticon.com/512/4406/4406228.png" alt="Signup Illustration">
+            <h2>Join Us Today!</h2>
+            <p>Create an account to unlock exclusive features and personalized content.</p>
+        </div>
+        
+        <div class="form-container">
+            <h1>Create Account</h1>
+                        <form action="signup.php" method="POST">
+                <div class="input-group">
+                    <label for="name">Full Name</label>
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Create a password" required class="password-input">
+                    <div class="password-strength"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="confirm-password" name="confirmpassword" placeholder="Confirm your password" required>
+                </div>
+                
+                <div class="terms">
+                    <input type="checkbox" id="agree" name="agree" required>
+                    <label for="agree">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                </div>
+                
+                <button type="submit">Sign Up</button>
+            </form>
+            
+            <div class="social-login">
+                <p>Or sign up with</p>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/" class="facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://accounts.google.com/" class="google"><i class="fab fa-google"></i></a>
+                    <a href="https://x.com/?lang=en" class="twitter"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            
+            <div class="login-link">
+                Already have an account? <a href="login.html">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password strength indicator
+        const passwordInput = document.querySelector('.password-input');
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = this.nextElementSibling;
+            
+            // Reset classes
+            this.classList.remove('weak-password', 'medium-password', 'strong-password');
+            
+            // Calculate strength
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/\d/)) strength++;
+            if (password.match(/[^a-zA-Z\d]/)) strength++;
+            
+            // Update UI
+            if (password.length > 0) {
+                if (strength <= 1) {
+                    this.classList.add('weak-password');
+                } else if (strength <= 3) {
+                    this.classList.add('medium-password');
+                } else {
+                    this.classList.add('strong-password');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
